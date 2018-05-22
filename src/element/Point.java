@@ -1,5 +1,7 @@
 package element;
 
+import java.util.ArrayList;
+
 import org.antlr.v4.runtime.atn.SemanticContext.PrecedencePredicate;
 
 public class Point {
@@ -9,16 +11,27 @@ public class Point {
 
 	private int machine;
 	private int machinecost;
+	private ArrayList<Integer> list_possible_machine;
 
-	public Point(String l, int v, int m, int mc) {
+	public Point(String l, int v, int m, int mc,ArrayList<Integer> list) {
 		// TODO Auto-generated constructor stub
 		label = l;
 		value = v;
 		machine = m;
 		machinecost = mc;
+		list_possible_machine= list;
 
 	}
 
+	
+	public ArrayList<Integer> getList_possible_machine() {
+		return list_possible_machine;
+	}
+	
+	public void setList_possible_machine(ArrayList<Integer> list_possible_machine) {
+		this.list_possible_machine = list_possible_machine;
+	}
+	
 	public int getMachine() {
 		return machine;
 	}

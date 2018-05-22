@@ -34,11 +34,11 @@ public class Job {
 			int i=1;
 			for(Operation operation : operationslist) {
 				
-				System.out.println("operation "+i );
+				//System.out.println("operation "+i );
 				for(int j=0;j<operation.getNummachinelist().size();j++ ) {
 					
-					System.out.print("machine "+operation.getNummachinelist().get(j));
-					System.out.println("time "+operation.getTimelist().get(j));
+					//System.out.print("machine "+operation.getNummachinelist().get(j));
+					//System.out.println("time "+operation.getTimelist().get(j));
 					
 				}
 

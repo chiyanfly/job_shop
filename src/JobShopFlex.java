@@ -30,6 +30,11 @@ public class JobShopFlex {
 	ArrayList<Job> jobArrayList = new ArrayList<Job>();
 	ArrayList<String> jobstringlist = new ArrayList<String>();
 	ArrayList<ArrayList<Point>> Jobpointlist;
+	// this list saves the point which can run on more than one machine
+	ArrayList<Point>  pointwithconflitlist =  new ArrayList<>();
+	
+	
+	
 
 	private Job analyse(String s) {
 		s = s.replace("\t", " ").replace("  ", " ").trim().replace(" ", "/");
@@ -101,7 +106,7 @@ public class JobShopFlex {
 			jobstringlist.remove(jobstringlist.size() - 1);
 			for (String operationstring : jobstringlist) {
 
-				System.out.println(operationstring);
+				// System.out.println(operationstring);
 				jobArrayList.add(analyse(operationstring));
 			}
 		} catch (Exception e) {
@@ -111,11 +116,20 @@ public class JobShopFlex {
 
 	}
 
+	
+	/*
+	 * 
+	 * 
+	 * this fonction is used for put all the points in the resourcelist but the  operation is not well distributed the machinenum and the teh cost
+	 * which is done in the fonction choose_machinefor_each_operation   
+	 * 
+	 * 
+	 * */
 	public void draw_for_operation_in_order() {
 
 		// draw all the points and the edges in one job
 		// the point debut
-		Point p_commence = new Point("Begin", 0, -1, -1);
+		// Point p_commence = new Point("Begin", 0, -1, -1);
 
 		int index_of_job = 1;
 		int index_of_operation = 1;
@@ -129,13 +143,18 @@ public class JobShopFlex {
 
 				// we need to choose one machine in the operation.getmachinelist
 				// to draw the point
-				int n = (int) (Math.random() % (operation.getNummachinelist().size()));
-				// which machine and what the cost is
-				int numofmachine = operation.getNummachinelist().get(n);
-				int time = operation.getTimelist().get(n);
+				// System.out.println("random value is "+Math.random()*100);
+				/*
+				 * int n = (int) (Math.random()*100 % (operation.getNummachinelist().size()));
+				 * // which machine and what the cost is int numofmachine =
+				 * operation.getNummachinelist().get(n); int time =
+				 * operation.getTimelist().get(n);
+				 * 
+				 */
 				String label = Integer.toString(index_of_operation) + "." + Integer.toString(index_of_job);
-
-				Point point = new Point(label, -1, numofmachine, time);
+				// we will decide which machine and the cost later , now we will just use _-1
+				// for the machine
+				Point point = new Point(label, -1, -1, -1,operation.getNummachinelist());
 				pList.add(point);
 				index_of_operation++;
 
@@ -148,26 +167,25 @@ public class JobShopFlex {
 
 		// add the begin point and the end point
 
-		for (ArrayList<Point> list : Jobpointlist) {
-
-			for (Point p : list) {
-
-				// System.out.println(p.getLabel() + " " + p.getValue() + " " + p.getMachine() +
-				// " " + p.getMachinecost());
-				multiGraph.addVertex(p);
-			}
-
-			// System.out.println(" ");
-
-		}
+	
 
 	}
 
+	
+	
+	
+	/*
+	 * 
+	 * 
+	 * this fonction is used for painting the edges between one job(the order)
+	 * 
+	 * */
+	
 	public void dessine_edges_entre_un_job() {
 
-		// point begin and point end
-		Point pointbegin = new Point("BEGIN", 0, -1, -1);
-		Point pointend = new Point("END", 0, -1, -1);
+		// put into the point begin and point end
+		Point pointbegin = new Point("BEGIN", 0, -1, -1,null);
+		Point pointend = new Point("END", 0, -1, -1,null);
 		ArrayList<Point> listbegin_end = new ArrayList<>();
 		listbegin_end.add(pointbegin);
 		listbegin_end.add(pointend);
@@ -222,41 +240,54 @@ public class JobShopFlex {
 
 		for (Point p : setpoint) {
 
-			System.out.println(p.getLabel() + " " + p.getValue() + " " + p.getMachine() + " " + p.getMachinecost());
+			// System.out.println(p.getLabel() + " " + p.getValue() + " machine : " +
+			// p.getMachine() + " cout :" + p.getMachinecost());
 
 		}
 
-		System.out.println("  ");
-
-		for (DefaultWeightedEdge edge : setedge) {
-
-			System.out.println(multiGraph.getEdgeSource(edge).getLabel() + " "
-					+ multiGraph.getEdgeTarget(edge).getLabel() + " " + multiGraph.getEdgeWeight(edge));
-
-		}
-
-		System.out.println("  ");
 	}
 
+	/*
+	 * 
+	 * 
+	 * this fonction is used for painting the edges between the operation of conflits(those operations on the same machine)
+	 * 
+	 * */
+	
 	public void dessine_edges_conflit() {
 
-		// Jobpointlist j1 compare with j2-end j2 compare with j3-end......
+		// the idea is that Jobpointlist j1 compare with j2-end j2 compare with j3-end......
 
 		int index = 0;
 		for (ArrayList<Point> job : Jobpointlist) {
 
 			if (index < Jobpointlist.size() - 1) {
-				int i =index;
-				for (; i < Jobpointlist.size()-1; i++) {
+				int i = index;
+				for (; i < Jobpointlist.size() - 1; i++) {
 					Compare(index, job, Jobpointlist.get(i + 1));
 				}
 			}
 			index++;
 
 		}
+// this is for output test
+		System.out.println("  ");
+
+		for (DefaultWeightedEdge edge : setedge) {
+
+			// System.out.println(multiGraph.getEdgeSource(edge).getLabel() + " "
+			// + multiGraph.getEdgeTarget(edge).getLabel() + " " +
+			// multiGraph.getEdgeWeight(edge));
+
+		}
+
+		System.out.println("  ");
 
 	}
-
+/*
+ * this fontion si used for painting the conflits between two jobs
+ * 
+ * */
 	private void Compare(int index, ArrayList<Point> job, ArrayList<Point> jobapres) {
 		// TODO Auto-generated method stub
 
@@ -276,6 +307,124 @@ public class JobShopFlex {
 		}
 	}
 
+	/*
+	 * this fontion is used for 
+	 *  choosing machine for_each_machine ramdomly TODO
+	 *  and put the points into the graph
+	 * */
+
+	public void choose_machinefor_each_operation() {
+
+		int index_of_job = 1;
+		int index_of_operation = 1;
+
+		for (Job job : jobArrayList) {
+
+			ArrayList<Point> pList = new ArrayList<>();
+
+			for (Operation operation : job.getOperationslist()) {
+
+				// we need to choose one machine in the operation.getmachinelist
+				// to draw the point
+				// System.out.println("random value is "+Math.random()*100);
+				int n = (int) (Math.random() * 100 % (operation.getNummachinelist().size()));
+				
+				
+				// which machine and what the cost is
+				int numofmachine = operation.getNummachinelist().get(n);
+				int time = operation.getTimelist().get(n);
+
+				String label = Integer.toString(index_of_operation) + "." + Integer.toString(index_of_job);
+				// we will decide which machine and the cost later , now we will just use _-1
+				// for the machine
+
+				if (operation.getNummachinelist().size()>1) {
+					pointwithconflitlist.add(new Point(label, -1, numofmachine, time,operation.getNummachinelist()));
+				}
+				
+				for (ArrayList<Point> list1 : Jobpointlist) {
+
+					for (Point p : list1) {
+
+						if (p.getLabel().equals(label)) {
+							p.setMachine(numofmachine);
+							p.setMachinecost(time);
+						}
+					}
+
+				}
+
+				index_of_operation++;
+
+			}
+			index_of_operation = 1;
+			index_of_job++;
+
+		}
+		
+		
+		for (ArrayList<Point> list : Jobpointlist) {
+
+			for (Point p : list) {
+
+				System.out.println(p.getLabel() + " " + p.getValue() + " " + p.getMachine() + " " + p.getMachinecost());
+				multiGraph.addVertex(p);
+			}
+
+			// System.out.println(" ");
+
+		}
+
+		
+	}
+
+	
+	
+	
+	
+	
+	
+	/* 
+	 * this fonction is used for find the situation just near the situation initiale 
+	 * it will return a  list with the type mutigraph
+	 * 
+	 * **/
+	
+	
+	
+	public  ArrayList<Multigraph<Point, DefaultWeightedEdge>>  find_voisin(){
+		
+		/*
+		 *firstly we need to find the list with  the  operation which can be excuted  on
+		* more than one machine and  after this for each operation in the list we will change
+		* the machine it will run on  
+		 * */
+		for(Point point_conflit: pointwithconflitlist) {
+			
+		
+			for(Integer i:point_conflit.getList_possible_machine()) {
+				
+				
+				if (i!=point_conflit.getMachine()) {
+					
+					
+					
+					
+				}
+				
+			}
+			
+			
+		}
+		
+		
+		return null;
+	}
+	
+	
+	
+	
+	
 	public JobShopFlex() {
 		// TODO Auto-generated constructor stub
 		/*
@@ -401,7 +550,6 @@ public class JobShopFlex {
 		if (arrayList.size() == 0) {
 
 			f.setValue(0);
-			;
 
 		}
 		return j;
@@ -412,7 +560,7 @@ public class JobShopFlex {
 
 		setedge = multiGraph.edgeSet();
 		setpoint = multiGraph.vertexSet();
-
+		int result = 0;
 		for (Point ptocalculer : setpoint) {
 
 			iteration(ptocalculer);
@@ -421,11 +569,13 @@ public class JobShopFlex {
 
 		for (Point p : setpoint) {
 
-			System.out.println(p.getLabel() + ":" + p.getValue());
-
+			// System.out.println(p.getLabel() + ":" + p.getValue());
+			if (p.getLabel().equals("END")) {
+				result = p.getValue();
+			}
 		}
 
-		return 0;
+		return result;
 
 	}
 
